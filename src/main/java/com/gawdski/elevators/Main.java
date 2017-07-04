@@ -76,7 +76,7 @@ public class Main {
             this.operator = operator;
 
             //I can observe more events than just 'elevatorButtonPressed' and 'levelButtonPressed" if I want to:
-            operator.observe().whenElevatorMoved((elevatorID, level) -> System.out.println("Hey, I can observe elevator moves! E#" + elevatorID + " is on level " + level + ". Maybe I will reroute it now."));
+//            operator.observe().whenElevatorMoved((elevatorID, level) -> System.out.println("Hey, I can observe elevator moves! E#" + elevatorID + " is on level " + level + ". Maybe I will reroute it now."));
             //or: operator.observe().whenElevatorRequestCompleted(...);
             //or: operator.observe().whenLevelRequestCompleted(...);
         }
