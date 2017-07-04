@@ -9,6 +9,7 @@ import elevator.runner.GuiRunner;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static elevator.Request.pressElevatorButton;
 import static elevator.Request.pressLevelButton;
@@ -92,13 +93,13 @@ public class Main {
             //which elevator should go there?
         }
 
-        public List<Integer> optimizeRoute(List<Integer> route, Integer currentFloor) {
-            Integer floors = operator.getLevelCount();
-            if (floors - currentFloor > floors / 2) {
-                Collections.sort(route, Comparator.naturalOrder());
-            } else {
-                Collections.sort(route, Comparator.reverseOrder());
-            }
+        public List<Integer> optimizeRoute(List<Integer> route, Integer currentFloor, Integer destination) {
+            boolean naturalOrder = isNaturalOrder(route);
+            route.add(destination);
+            List<Integer> lower = route.stream().filter(x -> x < currentFloor).collect(Collectors.toList());
+            List<Integer> upper = route.stream().filter(x -> x > currentFloor).collect(Collectors.toList());
+            if()
+
             return route;
         }
 
