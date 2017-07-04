@@ -1,5 +1,6 @@
 package com.gawdski.elevators;
 
+import elevator.ElevatorInfo;
 import elevator.Request;
 import elevator.RoutingController;
 import elevator.RoutingOperator;
@@ -85,26 +86,46 @@ public class Main {
         @Override
         public void elevatorButtonPressed(int elevatorID, Integer level) {
             //eventually, you want to call operator.setRoute(elevatorID, ???);
-
+            List<Integer> route = optimizeRoute(operator.getElevatorInfo(elevatorID).getCurrentRoute(), operator.getElevatorInfo(elevatorID).getCurrentPosition(), level);
+            operator.setRoute(elevatorID, route);
         }
 
         @Override
         public void levelButtonPressed(Integer level) {
             //which elevator should go there?
+            List<Integer> minFloors = new ArrayList<>();
+            for (int i = 0; i < operator.getElevatorCount(); i++) {
+                minFloors.add(operator.getElevatorInfo(i).getCurrentRoute().size());
+            }
+            int min = minFloors.stream().min(Comparator.naturalOrder()).get();
+            ElevatorInfo elevator = operator.getElevatorInfo(minFloors.indexOf(min));
+            List<Integer> route = optimizeRoute(elevator.getCurrentRoute(), elevator.getCurrentPosition(), level);
+            operator.setRoute(minFloors.indexOf(min), route);
         }
 
         public List<Integer> optimizeRoute(List<Integer> route, Integer currentFloor, Integer destination) {
             boolean naturalOrder = isNaturalOrder(route);
-            route.add(destination);
-            List<Integer> lower = route.stream().filter(x -> x < currentFloor).collect(Collectors.toList());
-            List<Integer> upper = route.stream().filter(x -> x > currentFloor).collect(Collectors.toList());
-            if()
+            List<Integer> result = new ArrayList<>();
+            result.addAll(route);
+            result.add(destination);
+            List<Integer> lower = result.stream().filter(x -> x < currentFloor).collect(Collectors.toList());
+            List<Integer> upper = result.stream().filter(x -> x > currentFloor).collect(Collectors.toList());
+            result = new ArrayList<>();
+            if(naturalOrder) {
+                result.addAll(upper);
+                Collections.sort(lower, Comparator.reverseOrder());
+                result.addAll(lower);
+            } else {
+                Collections.sort(lower, Comparator.reverseOrder());
+                result.addAll(lower);
+                result.addAll(upper);
+            }
 
-            return route;
+            return result;
         }
 
         boolean isNaturalOrder(List<Integer> requests) {
-            return requests.size() == 1 || requests.get(0) < requests.get(1);
+            return requests.size() == 1 || requests.size() == 0 || requests.get(0) < requests.get(1);
         }
 
     }
