@@ -18,7 +18,7 @@ import static java.util.Arrays.asList;
 public class Main {
 
     public static void main(String[] args) throws InterruptedException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException, InvocationTargetException {
-         runWithGUI();
+        runWithGUI();
         //or:
 //         runWithConsole();
         //or:
@@ -76,7 +76,7 @@ public class Main {
             this.operator = operator;
 
             //I can observe more events than just 'elevatorButtonPressed' and 'levelButtonPressed" if I want to:
-            operator.observe().whenElevatorMoved((elevatorID, level) -> System.out.println("Hey, I can observe elevator moves! E#" + elevatorID + " is on level " + level + ". Maybe I will reroute it now."));
+//            operator.observe().whenElevatorMoved((elevatorID, level) -> System.out.println("Hey, I can observe elevator moves! E#" + elevatorID + " is on level " + level + ". Maybe I will reroute it now."));
             //or: operator.observe().whenElevatorRequestCompleted(...);
             //or: operator.observe().whenLevelRequestCompleted(...);
         }
@@ -84,30 +84,27 @@ public class Main {
         @Override
         public void elevatorButtonPressed(int elevatorID, Integer level) {
             //eventually, you want to call operator.setRoute(elevatorID, ???);
-//            System.out.println(operator.getLevelRequestQueue().get(0));
-            List<Integer> requests = new ArrayList<>();
-            requests.addAll(operator.getElevatorInfo(elevatorID).getCurrentRoute());
-            requests.add(level);
-            operator.setRoute(elevatorID, requests);
+
         }
 
         @Override
         public void levelButtonPressed(Integer level) {
             //which elevator should go there?
-            List<Integer> floorsMin = new ArrayList<>();
-            for(int i = 0; i < operator.getElevatorCount(); i++) {
-                floorsMin.add(operator.getElevatorInfo(i).getCurrentRoute().size());
-            }
-            int min = floorsMin.stream().min(Comparator.naturalOrder()).get();
-            List<Integer> requests = new ArrayList<>();
-            requests.addAll(operator.getElevatorInfo(floorsMin.indexOf(min)).getCurrentRoute());
-            requests.add(level);
-            operator.setRoute(floorsMin.indexOf(min), requests);
         }
 
-//        public List<Integer> optimizeRoute() {
-//
-//        }
+        public List<Integer> optimizeRoute(List<Integer> route, Integer currentFloor) {
+            Integer floors = operator.getLevelCount();
+            if (floors - currentFloor > floors / 2) {
+                Collections.sort(route, Comparator.naturalOrder());
+            } else {
+                Collections.sort(route, Comparator.reverseOrder());
+            }
+            return route;
+        }
+
+        boolean isNaturalOrder(List<Integer> requests) {
+            return requests.size() == 1 || requests.get(0) < requests.get(1);
+        }
 
     }
 
