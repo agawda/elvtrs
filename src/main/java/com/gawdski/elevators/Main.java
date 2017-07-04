@@ -70,7 +70,6 @@ public class Main {
     public static class MyRoutingController implements RoutingController {
 
         private RoutingOperator operator;
-        private List<Integer> reqs = new ArrayList<>();
 
         @Override
         public void initialize(RoutingOperator operator) {
@@ -86,16 +85,25 @@ public class Main {
         public void elevatorButtonPressed(int elevatorID, Integer level) {
             //eventually, you want to call operator.setRoute(elevatorID, ???);
 //            System.out.println(operator.getLevelRequestQueue().get(0));
-            reqs.add(level);
-            System.out.println(reqs);
-            operator.setRoute(elevatorID, reqs);
+            List<Integer> requests = new LinkedList<>();
+            requests.addAll(operator.getElevatorInfo(elevatorID).getCurrentRoute());
+            requests.add(level);
+//            reqs.add(level);
+            operator.setRoute(elevatorID, requests);
         }
 
         @Override
         public void levelButtonPressed(Integer level) {
             //which elevator should go there?
-            reqs.add(level);
-            operator.setRoute(0, reqs);
+            List<Integer> floorsMin = new LinkedList<>();
+            for(int i = 0; i < operator.getElevatorCount(); i++) {
+                floorsMin.add(operator.getElevatorInfo(i).getCurrentRoute().size());
+            }
+            int min = floorsMin.stream().min(Comparator.naturalOrder()).get();
+            List<Integer> requests = new ArrayList<>();
+            requests.addAll(operator.getElevatorInfo(floorsMin.indexOf(min)).getCurrentRoute());
+            requests.add(level);
+            operator.setRoute(floorsMin.indexOf(min), requests);
         }
 
     }
