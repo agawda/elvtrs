@@ -1,5 +1,6 @@
 package com.gawdski.elevators;
 
+import elevator.ElevatorInfo;
 import elevator.Request;
 import elevator.RoutingController;
 import elevator.RoutingOperator;
@@ -83,26 +84,54 @@ public class Main {
 
         @Override
         public void elevatorButtonPressed(int elevatorID, Integer level) {
-            //eventually, you want to call operator.setRoute(elevatorID, ???);
-//            System.out.println(operator.getLevelRequestQueue().get(0));
-            List<Integer> requests = new ArrayList<>();
-            requests.addAll(operator.getElevatorInfo(elevatorID).getCurrentRoute());
-            requests.add(level);
-            operator.setRoute(elevatorID, requests);
+            setRouteInOperator(elevatorID, level);
         }
 
         @Override
         public void levelButtonPressed(Integer level) {
-            //which elevator should go there?
-            List<Integer> floorsMin = new ArrayList<>();
-            for(int i = 0; i < operator.getElevatorCount(); i++) {
-                floorsMin.add(operator.getElevatorInfo(i).getCurrentRoute().size());
+            List<Integer> routesComplexities = new LinkedList<>();
+            for (ElevatorInfo ei : operator.getElevatorsInfo()) {
+                int routeComplexity = 0;
+                if (!ei.getCurrentRoute().isEmpty()) {
+                    List<Integer> currRoute = ei.getCurrentRoute();
+                    routeComplexity += fastSubtractionAbs(ei.getCurrentPosition(), currRoute.get(0));
+                    for (int i = 1; i < currRoute.size(); i++) {
+                        routeComplexity += fastSubtractionAbs(currRoute.get(i), currRoute.get(i-1)) + 2;
+                    }
+                    routeComplexity += fastSubtractionAbs(currRoute.get(currRoute.size() - 1), level);
+                } else {
+                    routeComplexity += fastSubtractionAbs(level, ei.getCurrentPosition());
+                }
+                routesComplexities.add(routeComplexity);
             }
-            int min = floorsMin.stream().min(Comparator.naturalOrder()).get();
-            List<Integer> requests = new ArrayList<>();
-            requests.addAll(operator.getElevatorInfo(floorsMin.indexOf(min)).getCurrentRoute());
-            requests.add(level);
-            operator.setRoute(floorsMin.indexOf(min), requests);
+
+            int elevatorID = routesComplexities.indexOf(routesComplexities.stream().min(Comparator.naturalOrder()).get());
+            setRouteInOperator(elevatorID, level);
+        }
+
+        /*private Map.Entry<Integer, Integer> findSmallestComplexity(List<Map.Entry<Integer, Integer>> listOfComplexities) {
+            Map.Entry<Integer, Integer> smallestComplexity = listOfComplexities.get(0);
+            for (Map.Entry<Integer, Integer> comp : listOfComplexities.subList(1, listOfComplexities.size())) {
+                if (comp.getKey() < smallestComplexity.getKey()) {
+                    smallestComplexity = comp;
+                }
+            }
+
+            return smallestComplexity;
+        }*/
+
+        private int  fastSubtractionAbs(int a, int b) {
+            return a - b > 0 ? a - b : b - a;
+        }
+
+
+        private void setRouteInOperator(int elevatorID, Integer level) {
+            if (!operator.getElevatorInfo(elevatorID).getCurrentRoute().contains(level)) {
+                List<Integer> mutableList = new LinkedList<>(operator.getElevatorInfo(elevatorID).getCurrentRoute());
+                mutableList.add(level);
+                operator.setRoute(elevatorID, mutableList);
+            }
+
         }
 
 //        public List<Integer> optimizeRoute() {
