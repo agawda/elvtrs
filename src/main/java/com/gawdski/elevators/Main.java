@@ -85,6 +85,7 @@ public class Main {
         public void elevatorButtonPressed(int elevatorID, Integer level) {
             //eventually, you want to call operator.setRoute(elevatorID, ???);
 //            System.out.println(operator.getLevelRequestQueue().get(0));
+            if(operator.getElevatorInfo(elevatorID).getCurrentRoute().contains(level)) return;
             List<Integer> requests = new ArrayList<>();
             requests.addAll(operator.getElevatorInfo(elevatorID).getCurrentRoute());
             requests.add(level);
@@ -96,6 +97,7 @@ public class Main {
             //which elevator should go there?
             List<Integer> floorsMin = new ArrayList<>();
             for(int i = 0; i < operator.getElevatorCount(); i++) {
+                if(operator.getElevatorInfo(i).getCurrentRoute().contains(level)) return;
                 floorsMin.add(operator.getElevatorInfo(i).getCurrentRoute().size());
             }
             int min = floorsMin.stream().min(Comparator.naturalOrder()).get();
