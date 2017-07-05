@@ -118,12 +118,14 @@ public class Main {
         }
 
         static Map<Long, List<Request>> createTestData() {
-            Map<Long, List<Request>> reqs = new HashMap<>();//requests to be made per tick
-            reqs.put(0L, asList(pressLevelButton(1), pressLevelButton(8), pressLevelButton(7)));
-            reqs.put(1L, asList(pressElevatorButton(1, 5), pressElevatorButton(2, 6), pressElevatorButton(3, 9)));
-            reqs.put(2L, asList(pressLevelButton(0), pressLevelButton(4), pressLevelButton(9)));
-            reqs.put(3L, asList(pressElevatorButton(2, 7), pressElevatorButton(3, 8), pressElevatorButton(4, 2)));
-            reqs.put(4L, asList(pressLevelButton(2), pressLevelButton(3), pressLevelButton(1)));
+            Map<Long, List<Request>> reqs = new HashMap<>();
+            for (long l = 0; l < 100000; l++) {
+                reqs.put(l, asList(pressLevelButton(1), pressLevelButton(8), pressLevelButton(7)));
+                reqs.put(l, asList(pressElevatorButton(1, 5), pressElevatorButton(2, 6), pressElevatorButton(3, 9)));
+                reqs.put(l, asList(pressLevelButton(0), pressLevelButton(4), pressLevelButton(9)));
+                reqs.put(l, asList(pressElevatorButton(2, 7), pressElevatorButton(3, 8), pressElevatorButton(4, 2)));
+                reqs.put(l, asList(pressLevelButton(2), pressLevelButton(3), pressLevelButton(1)));
+            }
             return reqs;
         }
     }
