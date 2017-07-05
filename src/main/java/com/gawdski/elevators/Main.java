@@ -18,7 +18,7 @@ import static java.util.Arrays.asList;
 public class Main {
 
     public static void main(String[] args) throws InterruptedException, ClassNotFoundException, InstantiationException, IllegalAccessException, IOException, InvocationTargetException {
-         runWithGUI();
+        runWithGUI();
         //or:
 //         runWithConsole();
         //or:
@@ -76,7 +76,7 @@ public class Main {
             this.operator = operator;
 
             //I can observe more events than just 'elevatorButtonPressed' and 'levelButtonPressed" if I want to:
-            operator.observe().whenElevatorMoved((elevatorID, level) -> System.out.println("Hey, I can observe elevator moves! E#" + elevatorID + " is on level " + level + ". Maybe I will reroute it now."));
+//            operator.observe().whenElevatorMoved((elevatorID, level) -> System.out.println("Hey, I can observe elevator moves! E#" + elevatorID + " is on level " + level + ". Maybe I will reroute it now."));
             //or: operator.observe().whenElevatorRequestCompleted(...);
             //or: operator.observe().whenLevelRequestCompleted(...);
         }
@@ -85,6 +85,7 @@ public class Main {
         public void elevatorButtonPressed(int elevatorID, Integer level) {
             //eventually, you want to call operator.setRoute(elevatorID, ???);
 //            System.out.println(operator.getLevelRequestQueue().get(0));
+            if(operator.getElevatorInfo(elevatorID).getCurrentRoute().contains(level)) return;
             List<Integer> requests = new ArrayList<>();
             requests.addAll(operator.getElevatorInfo(elevatorID).getCurrentRoute());
             requests.add(level);
@@ -95,7 +96,8 @@ public class Main {
         public void levelButtonPressed(Integer level) {
             //which elevator should go there?
             List<Integer> floorsMin = new ArrayList<>();
-            for(int i = 0; i < operator.getElevatorCount(); i++) {
+            for (int i = 0; i < operator.getElevatorCount(); i++) {
+                if (operator.getElevatorInfo(i).getCurrentRoute().contains(level)) return;
                 floorsMin.add(operator.getElevatorInfo(i).getCurrentRoute().size());
             }
             int min = floorsMin.stream().min(Comparator.naturalOrder()).get();
@@ -117,6 +119,18 @@ public class Main {
             super(createTestData());
         }
 
+        //        static Map<Long, List<Request>> createTestData() {
+//            Map<Long, List<Request>> reqs = new HashMap<>();
+//            Random random = new Random();
+//            for (long l = 0; l < 100000; l++) {
+//                reqs.put(l, asList(pressLevelButton(random.nextInt(10)), pressLevelButton(random.nextInt(10)), pressLevelButton(random.nextInt(10))));
+//                reqs.put(l, asList(pressElevatorButton(1, random.nextInt(10)), pressElevatorButton(2, random.nextInt(10)), pressElevatorButton(3, random.nextInt(10))));
+//                reqs.put(l, asList(pressLevelButton(random.nextInt(10)), pressLevelButton(random.nextInt(10)), pressLevelButton(random.nextInt(10))));
+//                reqs.put(l, asList(pressElevatorButton(2, random.nextInt(10)), pressElevatorButton(3, random.nextInt(10)), pressElevatorButton(4, random.nextInt(10))));
+//                reqs.put(l, asList(pressLevelButton(random.nextInt(10)), pressLevelButton(random.nextInt(10)), pressLevelButton(random.nextInt(10))));
+//            }
+//            return reqs;
+//        }
         static Map<Long, List<Request>> createTestData() {
             Map<Long, List<Request>> reqs = new HashMap<>();//requests to be made per tick
             reqs.put(0L, asList(pressLevelButton(1), pressLevelButton(8), pressLevelButton(7)));
